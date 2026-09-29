@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSec Academy — Events</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background:#0d1117; color:#e6edf3; }
+    .card, .modal-content { background:#161b22; border:1px solid #30363d; }
+    .navbar { background:#010409 !important; border-bottom:1px solid #30363d; }
+    .form-control, .form-select { background:#0d1117; border:1px solid #30363d; color:#e6edf3; }
+    .form-control:focus, .form-select:focus { background:#0d1117; color:#e6edf3; border-color:#58a6ff; }
+    .event-card { background:#161b22; border:1px solid #30363d; border-radius:.75rem;
+      overflow:hidden; transition: transform .2s, border-color .2s; height:100%; }
+    .event-card:hover { transform: translateY(-4px); border-color:#58a6ff; }
+    .event-cover { height:140px; background:linear-gradient(135deg,#1f6feb 0%,#6f42c1 100%);
+      display:flex; align-items:center; justify-content:center; font-size:3rem; color:#fff; }
+    .event-type-ctf { background:#dc3545; } .event-type-workshop { background:#198754; }
+    .event-type-webinar { background:#0d6efd; } .event-type-bootcamp { background:#6f42c1; }
+  </style>
+</head>
+<body>
+<script src="js/auth.js"></script>
+
+<nav class="navbar navbar-expand-lg navbar-dark px-3">
+  <a class="navbar-brand" href="dashboard.html">
+    <i class="bi bi-shield-lock-fill text-info"></i> CyberSec Academy
+  </a>
+  <div class="ms-auto d-flex gap-2 flex-wrap">
+    <a href="dashboard.html" class="btn btn-sm btn-outline-light"><i class="bi bi-speedometer2"></i></a>
+    <a href="index.html" class="btn btn-sm btn-outline-light"><i class="bi bi-people"></i> Users</a>
+    <a href="courses.html" class="btn btn-sm btn-outline-light"><i class="bi bi-journal-code"></i> Courses</a>
+    <a href="labs.html" class="btn btn-sm btn-outline-light"><i class="bi bi-terminal"></i> Labs</a>
+    <a href="quizzes.html" class="btn btn-sm btn-outline-light"><i class="bi bi-question-circle"></i> Quizzes</a>
+    <a href="tools.html" class="btn btn-sm btn-outline-light"><i class="bi bi-tools"></i> Tools</a>
+    <span class="badge bg-success align-self-center">Events</span>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3><i class="bi bi-calendar-event"></i> Events & CTF</h3>
+    <button class="btn btn-primary" onclick="openCreateModal()">
+      <i class="bi bi-plus-circle"></i> Tambah Event
+    </button>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-5">
+      <input type="text" id="searchInput" class="form-control"
+             placeholder="Cari event..." onkeyup="debouncedLoad()">
+    </div>
+    <div class="col-md-3">
+      <select id="typeFilter" class="form-select" onchange="loadEvents()">
+        <option value="">Semua Tipe</option>
+        <option value="ctf">CTF</option>
+        <option value="workshop">Workshop</option>
+        <option value="webinar">Webinar</option>
+        <option value="bootcamp">Bootcamp</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select id="statusFilter" class="form-select" onchange="loadEvents()">
+        <option value="">Semua</option>
+        <option value="published">Published</option>
+        <option value="draft">Draft</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-outline-secondary w-100" onclick="loadEvents()">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div id="gridView" class="row g-3">
+    <div class="col-12 text-center py-5"><div class="spinner-border text-info"></div></div>
+  </div>
+
+  <nav class="mt-3"><ul class="pagination justify-content-center" id="pagination"></ul></nav>
+</div>
+
+<div class="modal fade" id="eventModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">Tambah Event</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="eventForm">
+          <input type="hidden" id="eventId">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">Judul Event</label>
+              <input type="text" class="form-control" id="eventTitle" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Tipe</label>
+              <select class="form-select" id="eventType">
+                <option value="ctf">CTF</option>
+                <option value="workshop">Workshop</option>
+                <option value="webinar">Webinar</option>
+                <option value="bootcamp">Bootcamp</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Deskripsi</label>
+              <textarea class="form-control" id="eventDesc" rows="2"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Lokasi</label>
+              <input type="text" class="form-control" id="eventLocation" placeholder="Online / Jakarta">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Mulai</label>
+              <input type="datetime-local" class="form-control" id="eventStart">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Selesai</label>
+              <input type="datetime-local" class="form-control" id="eventEnd">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Kapasitas (0=unlimited)</label>
+              <input type="number" class="form-control" id="eventCapacity" min="0" value="0">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Harga (Rp)</label>
+              <input type="number" class="form-control" id="eventPrice" min="0" value="0">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="eventFree" checked>
+                <label class="form-check-label">Gratis</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Cover URL</label>
+              <input type="url" class="form-control" id="eventCover" placeholder="https://...">
+            </div>
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="eventPublished">
+                <label class="form-check-label">Published</label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-primary" onclick="saveEvent()">
+          <i class="bi bi-save"></i> Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Hapus Event</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">Yakin hapus <strong id="deleteName"></strong>?</div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">
+          <i class="bi bi-trash"></i> Hapus
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toast" class="toast align-items-center text-bg-success border-0">
+    <div class="d-flex">
+      <div class="toast-body" id="toastMsg">OK</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/events.js"></script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSec Academy — Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background:#0d1117; color:#e6edf3; }
+    .navbar { background:#010409 !important; border-bottom:1px solid #30363d; }
+    .stat-card {
+      background:#161b22; border:1px solid #30363d; border-radius:.75rem;
+      transition: transform .2s, border-color .2s;
+    }
+    .stat-card:hover { transform: translateY(-3px); border-color:#58a6ff; }
+    .stat-icon { font-size:2rem; }
+    .stat-value { font-size:2rem; font-weight:700; }
+    .recent-list { background:#0d1117; border:1px solid #30363d; border-radius:.5rem; padding:.5rem 0; }
+    .recent-list li { padding:.35rem .75rem; border-bottom:1px solid #21262d; font-size:.85rem; }
+    .recent-list li:last-child { border-bottom:0; }
+  </style>
+</head>
+<body>
+<script src="js/auth.js"></script>
+
+<nav class="navbar navbar-expand-lg navbar-dark px-3">
+  <a class="navbar-brand" href="dashboard.html">
+    <i class="bi bi-shield-lock-fill text-info"></i> CyberSec Academy
+  </a>
+  <div class="ms-auto d-flex gap-2 flex-wrap">
+    <a href="index.html" class="btn btn-sm btn-outline-light"><i class="bi bi-people"></i> Users</a>
+    <a href="courses.html" class="btn btn-sm btn-outline-light"><i class="bi bi-journal-code"></i> Courses</a>
+    <a href="labs.html" class="btn btn-sm btn-outline-light"><i class="bi bi-terminal"></i> Labs</a>
+    <a href="quizzes.html" class="btn btn-sm btn-outline-light"><i class="bi bi-question-circle"></i> Quizzes</a>
+    <a href="tools.html" class="btn btn-sm btn-outline-light"><i class="bi bi-tools"></i> Tools</a>
+    <a href="events.html" class="btn btn-sm btn-outline-light"><i class="bi bi-calendar-event"></i> Events</a>
+    <a href="leaderboard.html" class="btn btn-sm btn-outline-warning"><i class="bi bi-trophy"></i> Leaderboard</a>
+    <span class="badge bg-primary align-self-center">Dashboard</span>
+    <button class="btn btn-sm btn-outline-danger" onclick="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3><i class="bi bi-speedometer2"></i> Dashboard</h3>
+    <button class="btn btn-outline-info" onclick="loadAll()">
+      <i class="bi bi-arrow-clockwise"></i> Refresh
+    </button>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4 col-lg-2">
+      <div class="stat-card p-3 text-center">
+        <i class="bi bi-people-fill stat-icon text-info"></i>
+        <div class="stat-value" id="statUsers">–</div>
+        <div class="text-muted small">Users</div>
+      </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+      <div class="stat-card p-3 text-center">
+        <i class="bi bi-journal-code stat-icon text-success"></i>
+        <div class="stat-value" id="statCourses">–</div>
+        <div class="text-muted small">Courses</div>
+      </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+      <div class="stat-card p-3 text-center">
+        <i class="bi bi-terminal-fill stat-icon text-danger"></i>
+        <div class="stat-value" id="statLabs">–</div>
+        <div class="text-muted small">Labs</div>
+      </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+      <div class="stat-card p-3 text-center">
+        <i class="bi bi-question-circle-fill stat-icon text-warning"></i>
+        <div class="stat-value" id="statQuizzes">–</div>
+        <div class="text-muted small">Quizzes</div>
+      </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+      <div class="stat-card p-3 text-center">
+        <i class="bi bi-tools stat-icon text-info"></i>
+        <div class="stat-value" id="statTools">–</div>
+        <div class="text-muted small">Tools</div>
+      </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+      <div class="stat-card p-3 text-center">
+        <i class="bi bi-calendar-event stat-icon text-success"></i>
+        <div class="stat-value" id="statEvents">–</div>
+        <div class="text-muted small">Events</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECENT LISTS -->
+  <div class="row g-3">
+    <div class="col-md-6 col-lg-4">
+      <div class="card p-3">
+        <h6><i class="bi bi-journal-code text-success"></i> Courses Terbaru</h6>
+        <ul class="recent-list list-unstyled mb-0" id="recentCourses"></ul>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card p-3">
+        <h6><i class="bi bi-terminal-fill text-danger"></i> Labs Terbaru</h6>
+        <ul class="recent-list list-unstyled mb-0" id="recentLabs"></ul>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card p-3">
+        <h6><i class="bi bi-question-circle-fill text-warning"></i> Quizzes Terbaru</h6>
+        <ul class="recent-list list-unstyled mb-0" id="recentQuizzes"></ul>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card p-3">
+        <h6><i class="bi bi-tools text-info"></i> Tools Terbaru</h6>
+        <ul class="recent-list list-unstyled mb-0" id="recentTools"></ul>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card p-3">
+        <h6><i class="bi bi-calendar-event text-success"></i> Events Terbaru</h6>
+        <ul class="recent-list list-unstyled mb-0" id="recentEvents"></ul>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card p-3">
+        <h6><i class="bi bi-lightning-charge-fill text-warning"></i> Quick Actions</h6>
+        <div class="d-grid gap-2">
+          <a href="index.html" class="btn btn-sm btn-outline-light text-start">
+            <i class="bi bi-person-plus"></i> Tambah User</a>
+          <a href="labs.html" class="btn btn-sm btn-outline-light text-start">
+            <i class="bi bi-plus-circle"></i> Tambah Lab</a>
+          <a href="events.html" class="btn btn-sm btn-outline-light text-start">
+            <i class="bi bi-calendar-plus"></i> Tambah Event</a>
+          <a href="http://localhost:8000/docs" target="_blank" class="btn btn-sm btn-outline-light text-start">
+            <i class="bi bi-file-code"></i> API Docs</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toast" class="toast align-items-center text-bg-success border-0">
+    <div class="d-flex">
+      <div class="toast-body" id="toastMsg">OK</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Test</title>
+<style>
+body { background:#0d1117; color:#fff; font-family:sans-serif;
+       display:flex; align-items:center; justify-content:center;
+       height:100vh; margin:0; }
+.box { background:#161b22; padding:2rem; border-radius:1rem;
+       border:1px solid #30363d; text-align:center; width:300px; }
+input, button { width:100%; padding:.5rem; margin:.5rem 0;
+       border-radius:.4rem; border:1px solid #30363d;
+       background:#0d1117; color:#fff; box-sizing:border-box; }
+button { background:#1f6feb; border:0; cursor:pointer; font-weight:bold; }
+button:hover { background:#388bfd; }
+.err { color:#f85149; font-size:.9rem; margin-top:.5rem; }
+.hidden { display:none; }
+</style>
+</head>
+<body>
+
+<div class="box" id="loginBox">
+  <h2>🔒 Login</h2>
+  <input id="email" placeholder="email" value="admin@cybersec.id">
+  <input id="password" type="password" placeholder="password" value="admin123">
+  <button onclick="doLogin()">Login</button>
+  <div class="err hidden" id="err">Email atau password salah</div>
+</div>
+
+<div class="box hidden" id="dashBox">
+  <h2>✅ Dashboard</h2>
+  <p>Selamat datang!</p>
+  <p id="welcome"></p>
+  <button onclick="doLogout()">Logout</button>
+</div>
+
+<script>
+const USERS = [
+  { email: "admin@cybersec.id", password: "admin123", name: "Admin Cyber" },
+  { email: "budi@cybersec.id",  password: "student123", name: "Budi" },
+];
+
+function doLogin() {
+  const e = document.getElementById("email").value.trim();
+  const p = document.getElementById("password").value;
+  const user = USERS.find(u => u.email === e && u.password === p);
+  if (!user) {
+    document.getElementById("err").classList.remove("hidden");
+    return;
+  }
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("dashBox").classList.remove("hidden");
+  document.getElementById("welcome").textContent = "Halo, " + user.name;
+}
+function doLogout() {
+  document.getElementById("dashBox").classList.add("hidden");
+  document.getElementById("loginBox").classList.remove("hidden");
+  document.getElementById("err").classList.add("hidden");
+}
+</script>
+</body>
+</html>

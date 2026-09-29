@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSec Academy — Leaderboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background:#0d1117; color:#e6edf3; }
+    .navbar { background:#010409 !important; border-bottom:1px solid #30363d; }
+    .card { background:#161b22; border:1px solid #30363d; }
+    .table { color:#e6edf3; } .table thead { background:#21262d; }
+    .table-hover tbody tr:hover { background:#1f2937; }
+    .rank-1 { background:linear-gradient(90deg, rgba(255,215,0,.15), transparent); }
+    .rank-2 { background:linear-gradient(90deg, rgba(192,192,192,.12), transparent); }
+    .rank-3 { background:linear-gradient(90deg, rgba(205,127,50,.12), transparent); }
+    .medal { font-size:1.3rem; }
+  </style>
+</head>
+<body>
+<script src="js/auth.js"></script>
+
+<nav class="navbar navbar-expand-lg navbar-dark px-3">
+  <a class="navbar-brand" href="dashboard.html">
+    <i class="bi bi-shield-lock-fill text-info"></i> CyberSec Academy
+  </a>
+  <div class="ms-auto d-flex gap-2 flex-wrap">
+    <a href="dashboard.html" class="btn btn-sm btn-outline-light"><i class="bi bi-speedometer2"></i></a>
+    <a href="index.html" class="btn btn-sm btn-outline-light"><i class="bi bi-people"></i> Users</a>
+    <a href="courses.html" class="btn btn-sm btn-outline-light"><i class="bi bi-journal-code"></i> Courses</a>
+    <a href="labs.html" class="btn btn-sm btn-outline-light"><i class="bi bi-terminal"></i> Labs</a>
+    <a href="quizzes.html" class="btn btn-sm btn-outline-light"><i class="bi bi-question-circle"></i> Quizzes</a>
+    <a href="tools.html" class="btn btn-sm btn-outline-light"><i class="bi bi-tools"></i> Tools</a>
+    <a href="events.html" class="btn btn-sm btn-outline-light"><i class="bi bi-calendar-event"></i> Events</a>
+    <span class="badge bg-warning text-dark align-self-center">Leaderboard</span>
+    <button class="btn btn-sm btn-outline-danger" onclick="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3><i class="bi bi-trophy-fill text-warning"></i> Leaderboard</h3>
+    <button class="btn btn-outline-info" onclick="loadLeaderboard()">
+      <i class="bi bi-arrow-clockwise"></i> Refresh
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th style="width:70px">Rank</th>
+            <th>Nama</th>
+            <th style="width:120px" class="text-end">Points</th>
+            <th style="width:140px" class="text-end">Completed</th>
+          </tr>
+        </thead>
+        <tbody id="lbTable">
+          <tr><td colspan="4" class="text-center py-4">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/leaderboard.js"></script>
+</body>
+</html>

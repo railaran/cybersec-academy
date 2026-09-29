@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSec Academy — Labs</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background: #0d1117; color: #e6edf3; }
+    .card, .modal-content { background: #161b22; border: 1px solid #30363d; }
+    .table { color: #e6edf3; } .table thead { background: #21262d; }
+    .table-hover tbody tr:hover { background: #1f2937; }
+    .navbar { background: #010409 !important; border-bottom: 1px solid #30363d; }
+    .form-control, .form-select {
+      background: #0d1117; border: 1px solid #30363d; color: #e6edf3;
+    }
+    .form-control:focus, .form-select:focus {
+      background: #0d1117; color: #e6edf3; border-color: #58a6ff;
+      box-shadow: 0 0 0 .2rem rgba(88,166,255,.25);
+    }
+    .lab-card {
+      background: #161b22; border: 1px solid #30363d; border-radius: .75rem;
+      transition: transform .2s, border-color .2s; height: 100%;
+    }
+    .lab-card:hover { transform: translateY(-4px); border-color: #58a6ff; }
+    .diff-easy    { background:#198754; }
+    .diff-medium  { background:#ffc107; color:#000; }
+    .diff-hard    { background:#dc3545; }
+    .diff-insane  { background:#6f42c1; }
+  </style>
+</head>
+<body>
+<script src="js/auth.js"></script>
+
+<nav class="navbar navbar-expand-lg navbar-dark px-3">
+  <a class="navbar-brand" href="index.html">
+    <i class="bi bi-shield-lock-fill text-info"></i> CyberSec Academy
+  </a>
+  <div class="ms-auto d-flex gap-2">
+    <a href="index.html" class="btn btn-sm btn-outline-light"><i class="bi bi-people"></i> Users</a>
+    <a href="courses.html" class="btn btn-sm btn-outline-light"><i class="bi bi-journal-code"></i> Courses</a>
+    <a href="quizzes.html" class="btn btn-sm btn-outline-light"><i class="bi bi-question-circle"></i> Quizzes</a>
+    <span class="badge bg-danger align-self-center">Labs</span>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3><i class="bi bi-terminal"></i> Cyber Range Labs</h3>
+    <button class="btn btn-primary" onclick="openCreateModal()">
+      <i class="bi bi-plus-circle"></i> Tambah Lab
+    </button>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-5">
+      <input type="text" id="searchInput" class="form-control"
+             placeholder="Cari lab..." onkeyup="debouncedLoad()">
+    </div>
+    <div class="col-md-2">
+      <select id="catFilter" class="form-select" onchange="loadLabs()">
+        <option value="">Semua Kategori</option>
+        <option value="web">Web Exploitation</option>
+        <option value="network">Network</option>
+        <option value="forensics">Forensics</option>
+        <option value="crypto">Cryptography</option>
+        <option value="osint">OSINT</option>
+        <option value="reveng">Reverse Engineering</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select id="diffFilter" class="form-select" onchange="loadLabs()">
+        <option value="">Semua Difficulty</option>
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+        <option value="insane">Insane</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <button class="btn btn-outline-secondary w-100" onclick="loadLabs()">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div id="gridView" class="row g-3">
+    <div class="col-12 text-center py-5"><div class="spinner-border text-info"></div></div>
+  </div>
+
+  <nav class="mt-3"><ul class="pagination justify-content-center" id="pagination"></ul></nav>
+</div>
+
+<!-- MODAL FORM -->
+<div class="modal fade" id="labModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">Tambah Lab</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="labForm">
+          <input type="hidden" id="labId">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">Judul Lab</label>
+              <input type="text" class="form-control" id="labTitle" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Kategori</label>
+              <select class="form-select" id="labCategory">
+                <option value="web">Web Exploitation</option>
+                <option value="network">Network</option>
+                <option value="forensics">Forensics</option>
+                <option value="crypto">Cryptography</option>
+                <option value="osint">OSINT</option>
+                <option value="reveng">Reverse Engineering</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Deskripsi</label>
+              <textarea class="form-control" id="labDesc" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Objective</label>
+              <textarea class="form-control" id="labObjective" rows="2"></textarea>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Difficulty</label>
+              <select class="form-select" id="labDifficulty" required>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+                <option value="insane">Insane</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Points</label>
+              <input type="number" class="form-control" id="labPoints" min="10" value="100">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Time Limit (menit)</label>
+              <input type="number" class="form-control" id="labTime" min="5" value="60">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Docker Image</label>
+              <input type="text" class="form-control" id="labImage" placeholder="ctf/web-easy:latest">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Flag</label>
+              <input type="text" class="form-control" id="labFlag" placeholder="CTF{...}">
+            </div>
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="labActive" checked>
+                <label class="form-check-label">Aktif</label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-primary" onclick="saveLab()">
+          <i class="bi bi-save"></i> Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SUBMIT FLAG -->
+<div class="modal fade" id="flagModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Submit Flag</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="small text-muted mb-2">Lab: <strong id="flagLabName"></strong></p>
+        <input type="text" class="form-control" id="flagInput" placeholder="CTF{...}">
+        <div id="flagResult" class="mt-2 small"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+        <button class="btn btn-success" onclick="submitFlag()">
+          <i class="bi bi-flag"></i> Submit
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DELETE -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Hapus Lab</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">Yakin hapus <strong id="deleteName"></strong>?</div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">
+          <i class="bi bi-trash"></i> Hapus
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toast" class="toast align-items-center text-bg-success border-0">
+    <div class="d-flex">
+      <div class="toast-body" id="toastMsg">OK</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/labs.js"></script>
+</body>
+</html>

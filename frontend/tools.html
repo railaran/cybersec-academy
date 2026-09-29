@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSec Academy — Tools</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background:#0d1117; color:#e6edf3; }
+    .card, .modal-content { background:#161b22; border:1px solid #30363d; }
+    .navbar { background:#010409 !important; border-bottom:1px solid #30363d; }
+    .form-control, .form-select { background:#0d1117; border:1px solid #30363d; color:#e6edf3; }
+    .form-control:focus, .form-select:focus { background:#0d1117; color:#e6edf3; border-color:#58a6ff; }
+    .tool-card { background:#161b22; border:1px solid #30363d; border-radius:.75rem;
+      transition: transform .2s, border-color .2s; height:100%; }
+    .tool-card:hover { transform: translateY(-4px); border-color:#58a6ff; }
+    .tool-icon { font-size:2rem; color:#58a6ff; }
+    code.cmd { background:#0d1117; border:1px solid #30363d; padding:2px 6px;
+      border-radius:.25rem; color:#7ee787; font-size:.8rem; display:inline-block;
+      max-width:100%; overflow-x:auto; white-space:nowrap; }
+  </style>
+</head>
+<body>
+<script src="js/auth.js"></script>
+
+<nav class="navbar navbar-expand-lg navbar-dark px-3">
+  <a class="navbar-brand" href="dashboard.html">
+    <i class="bi bi-shield-lock-fill text-info"></i> CyberSec Academy
+  </a>
+  <div class="ms-auto d-flex gap-2 flex-wrap">
+    <a href="dashboard.html" class="btn btn-sm btn-outline-light"><i class="bi bi-speedometer2"></i></a>
+    <a href="index.html" class="btn btn-sm btn-outline-light"><i class="bi bi-people"></i> Users</a>
+    <a href="courses.html" class="btn btn-sm btn-outline-light"><i class="bi bi-journal-code"></i> Courses</a>
+    <a href="labs.html" class="btn btn-sm btn-outline-light"><i class="bi bi-terminal"></i> Labs</a>
+    <a href="quizzes.html" class="btn btn-sm btn-outline-light"><i class="bi bi-question-circle"></i> Quizzes</a>
+    <a href="events.html" class="btn btn-sm btn-outline-light"><i class="bi bi-calendar-event"></i> Events</a>
+    <span class="badge bg-info text-dark align-self-center">Tools</span>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3><i class="bi bi-tools"></i> Cyber Tools Catalog</h3>
+    <button class="btn btn-primary" onclick="openCreateModal()">
+      <i class="bi bi-plus-circle"></i> Tambah Tool
+    </button>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-5">
+      <input type="text" id="searchInput" class="form-control"
+             placeholder="Cari tool..." onkeyup="debouncedLoad()">
+    </div>
+    <div class="col-md-3">
+      <select id="catFilter" class="form-select" onchange="loadTools()">
+        <option value="">Semua Kategori</option>
+        <option value="recon">Recon</option>
+        <option value="exploitation">Exploitation</option>
+        <option value="post-exploitation">Post-Exploitation</option>
+        <option value="forensics">Forensics</option>
+        <option value="crypto">Cryptography</option>
+        <option value="web">Web</option>
+        <option value="network">Network</option>
+        <option value="osint">OSINT</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select id="platFilter" class="form-select" onchange="loadTools()">
+        <option value="">Semua Platform</option>
+        <option value="linux">Linux</option>
+        <option value="windows">Windows</option>
+        <option value="mac">Mac</option>
+        <option value="web">Web</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-outline-secondary w-100" onclick="loadTools()">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div id="gridView" class="row g-3">
+    <div class="col-12 text-center py-5"><div class="spinner-border text-info"></div></div>
+  </div>
+
+  <nav class="mt-3"><ul class="pagination justify-content-center" id="pagination"></ul></nav>
+</div>
+
+<!-- MODAL FORM -->
+<div class="modal fade" id="toolModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">Tambah Tool</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="toolForm">
+          <input type="hidden" id="toolId">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">Nama Tool</label>
+              <input type="text" class="form-control" id="toolName" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Kategori</label>
+              <select class="form-select" id="toolCategory">
+                <option value="recon">Recon</option>
+                <option value="exploitation">Exploitation</option>
+                <option value="post-exploitation">Post-Exploitation</option>
+                <option value="forensics">Forensics</option>
+                <option value="crypto">Cryptography</option>
+                <option value="web">Web</option>
+                <option value="network">Network</option>
+                <option value="osint">OSINT</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Deskripsi</label>
+              <textarea class="form-control" id="toolDesc" rows="2"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Homepage</label>
+              <input type="url" class="form-control" id="toolHome" placeholder="https://...">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Platform</label>
+              <select class="form-select" id="toolPlatform">
+                <option value="linux">Linux</option>
+                <option value="windows">Windows</option>
+                <option value="mac">Mac</option>
+                <option value="web">Web</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Install Command</label>
+              <input type="text" class="form-control" id="toolInstall"
+                     placeholder="sudo apt install nmap">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Usage Hint</label>
+              <textarea class="form-control" id="toolUsage" rows="2"
+                        placeholder="nmap -sV -p- target.com"></textarea>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="toolOpen" checked>
+                <label class="form-check-label">Open Source</label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="toolActive" checked>
+                <label class="form-check-label">Aktif</label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-primary" onclick="saveTool()">
+          <i class="bi bi-save"></i> Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Hapus Tool</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">Yakin hapus <strong id="deleteName"></strong>?</div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">
+          <i class="bi bi-trash"></i> Hapus
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toast" class="toast align-items-center text-bg-success border-0">
+    <div class="d-flex">
+      <div class="toast-body" id="toastMsg">OK</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/tools.js"></script>
+</body>
+</html>
